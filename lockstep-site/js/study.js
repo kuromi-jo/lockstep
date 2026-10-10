@@ -1,4 +1,5 @@
-// Study mode (?study=1): records anonymous, in-memory task metrics for the usability test,
+// Session metrics (always on, in memory only) with a copyable summary at the end.
+// Study mode (?study=1) adds neutral page titles and form-specific wording for the usability test;
 // then shows a copyable results summary for the Google Form.
 // Nothing is sent anywhere or saved in the browser; the researcher copies the results.
 (function () {
@@ -17,13 +18,11 @@
   function now() { return performance.now(); }
 
   function start(flow) {
-    if (!enabled) return;
     data.flow = flow;
     data.startedAt = now();
   }
 
   function screen(name) {
-    if (!enabled) return;
     const t = now();
     if (data.current) data.screenTimes[data.current] = (data.screenTimes[data.current] || 0) + (t - data.currentSince);
     data.current = name;
@@ -31,7 +30,6 @@
   }
 
   function event(type, detail = "") {
-    if (!enabled) return;
     data.events.push({ t: Math.round((now() - data.startedAt) / 1000), type, detail });
   }
 
@@ -39,7 +37,6 @@
   const secs = (ms) => `${Math.round(ms / 1000)}s`;
 
   function finish(outcome) {
-    if (!enabled) return false;
     screen("end");
     const totalMs = now() - data.startedAt;
     const root = document.getElementById("modal-root");
@@ -60,9 +57,9 @@
 
     // Results only — the questionnaire itself lives in the Google Form.
     root.innerHTML = `<div class="flow-modal-backdrop"><div class="flow-modal study-modal" role="dialog" aria-modal="true" aria-labelledby="study-title">
-      <p class="study-badge">${T.studyBadge}</p>
-      <h2 id="study-title" tabindex="-1">${T.studyDoneTitle}</h2>
-      <p>${T.studyDoneText}</p>
+      ${enabled ? `<p class="study-badge">${T.studyBadge}</p>` : ""}
+      <h2 id="study-title" tabindex="-1">${enabled ? T.studyDoneTitle : T.demoDoneTitle}</h2>
+      <p>${enabled ? T.studyDoneText : T.demoDoneText}</p>
       <button type="button" class="flow-primary" id="study-copy">${T.copyResults}</button>
       <details class="study-details"><summary>${T.resultsTitle}</summary><pre id="study-text"></pre></details>
       <button type="button" class="flow-link" id="study-close">${T.finishStudy}</button>
@@ -89,7 +86,7 @@
     dialog.querySelector("#study-close").onclick = () => {
       release();
       root.innerHTML = "";
-      location.href = window.withParam("study", "1");
+      location.href = enabled ? window.withParam("study", "1") : "index.html";
     };
     return true;
   }
