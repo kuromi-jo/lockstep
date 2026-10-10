@@ -601,3 +601,30 @@ body.text-lg .flow-content, body.text-lg .flow-meter, body.text-lg .flow-modal {
 @media (max-width: 700px) { .phone-screen { height: 640px; } }
 /* Study band now sits right after the hero */
 .study-band { margin-top: 0; margin-bottom: 100px; }
+
+/* Session results modal */
+.study-modal { width: min(440px, 100%); padding: 26px 24px 20px; }
+.rs-head { display: flex; justify-content: space-between; align-items: center; }
+.study-modal h2 { margin-top: 14px; font-size: 26px; }
+.rs-intro { margin: 8px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.rs-protect { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--line); background: #fff; border-left: 5px solid var(--risk); }
+.rs-protect.moderate { border-left-color: var(--clay); }
+.rs-protect.strong { border-left-color: var(--sage-deep); }
+.rs-protect span { display: block; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rs-protect strong { display: block; margin-top: 4px; font-size: 13px; line-height: 1.35; }
+.rs-protect b { flex: none; font-family: var(--serif); font-size: 30px; line-height: 1; color: var(--risk); }
+.rs-protect.moderate b { color: var(--clay); }
+.rs-protect.strong b { color: var(--sage-deep); }
+.rs-protect b small { font-size: 14px; color: var(--muted); }
+.rs-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
+.rs-tile { padding: 10px 6px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); text-align: center; }
+.rs-tile strong { display: block; font-family: var(--serif); font-size: 20px; line-height: 1.1; }
+.rs-tile span { display: block; margin-top: 4px; font-size: 9px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.rs-tile.warn strong { color: var(--clay); }
+.study-modal #study-copy { margin-top: 18px; }
+.study-modal #study-copy.done { background: var(--sage-deep); }
+.study-details { margin-top: 12px; }
+.study-details summary { cursor: pointer; font-size: 12px; font-weight: 700; color: var(--sage-deep); }
+.study-details #study-text { margin-top: 8px; max-height: 180px; font-size: 10px; }
+.study-modal #study-close { display: block; margin: 6px auto 0; }
+@media (max-width: 420px) { .rs-grid { grid-template-columns: repeat(2, 1fr); } }

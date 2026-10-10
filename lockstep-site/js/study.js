@@ -5,6 +5,8 @@
 (function () {
   const T = window.T;
   const enabled = new URLSearchParams(location.search).get("study") === "1";
+  // Bump this after each round of improvements so retest results can be told apart.
+  const BUILD = "1.0";
 
   const data = {
     flow: "",
@@ -41,27 +43,46 @@
     const totalMs = now() - data.startedAt;
     const root = document.getElementById("modal-root");
     const perScreen = Object.entries(data.screenTimes).filter(([k]) => k !== "end").map(([k, v]) => `${k}=${secs(v)}`).join(", ");
+    const totalS = Math.round(totalMs / 1000);
+    const checks = outcome.checks ?? 0;
+    const level = checks >= 5 ? "strong" : checks >= 3 ? "moderate" : "weak";
     const summary = [
+      `Lockstep session results (build ${BUILD})`,
       `Flow: ${data.flow}  ·  Language: ${T.lang}`,
       `Total time: ${secs(totalMs)}`,
       `Final protection: ${outcome.summary}`,
-      `Checks covered: ${outcome.checks ?? "n/a"} / 6`,
+      `Checks covered: ${checks} / 6`,
       `Skips: ${count("skip")}  ·  Errors: ${count("error")}  ·  "More details" opened: ${count("details")}  ·  Fix-now used: ${count("fix")}  ·  Back presses: ${count("back")}`,
       `Time per screen: ${perScreen}`,
       `Event log: ${data.events.map((e) => `[${e.t}s] ${e.type}${e.detail ? `:${e.detail}` : ""}`).join(" ")}`,
       "",
       "Spreadsheet row (tab-separated):",
-      [data.flow, T.lang, Math.round(totalMs / 1000), outcome.checks ?? "", count("skip"), count("error"), count("details"), count("fix")].join("\t"),
-      "Columns: flow, lang, total_s, checks, skips, errors, details, fixes",
+      [BUILD, data.flow, T.lang, totalS, checks, count("skip"), count("error"), count("details"), count("fix")].join("\t"),
+      "Columns: build, flow, lang, total_s, checks, skips, errors, details, fixes",
     ].join("\n");
 
-    // Results only — the questionnaire itself lives in the Google Form.
+    const tile = (value, label, tone = "") => `<div class="rs-tile ${tone}"><strong>${value}</strong><span>${label}</span></div>`;
+    const fmtTime = totalS >= 60 ? `${Math.floor(totalS / 60)}m ${totalS % 60}s` : `${totalS}s`;
+
     root.innerHTML = `<div class="flow-modal-backdrop"><div class="flow-modal study-modal" role="dialog" aria-modal="true" aria-labelledby="study-title">
-      ${enabled ? `<p class="study-badge">${T.studyBadge}</p>` : ""}
+      <div class="rs-head">
+        <div class="flow-icon brand">${window.icon("check", 24)}</div>
+        ${enabled ? `<p class="study-badge">${T.studyBadge}</p>` : ""}
+      </div>
       <h2 id="study-title" tabindex="-1">${enabled ? T.studyDoneTitle : T.demoDoneTitle}</h2>
-      <p>${enabled ? T.studyDoneText : T.demoDoneText}</p>
-      <button type="button" class="flow-primary" id="study-copy">${T.copyResults}</button>
-      <details class="study-details"><summary>${T.resultsTitle}</summary><pre id="study-text"></pre></details>
+      <p class="rs-intro">${enabled ? T.studyDoneText : T.demoDoneText}</p>
+      <div class="rs-protect ${level}">
+        <div><span>${T.rsProtection}</span><strong>${window.escapeHtml(outcome.summary)}</strong></div>
+        <b>${checks}<small>/6</small></b>
+      </div>
+      <div class="rs-grid">
+        ${tile(fmtTime, T.rsTime)}
+        ${tile(count("skip"), T.rsSkips, count("skip") ? "warn" : "")}
+        ${tile(count("error"), T.rsErrors)}
+        ${tile(count("details"), T.rsDetails)}
+      </div>
+      <button type="button" class="flow-primary" id="study-copy">${window.icon("check", 16)} ${T.copyResults}</button>
+      <details class="study-details"><summary>${T.rsFull}</summary><pre id="study-text"></pre></details>
       <button type="button" class="flow-link" id="study-close">${T.finishStudy}</button>
     </div></div>`;
 
@@ -80,7 +101,9 @@
         getSelection().addRange(range);
         document.execCommand("copy");
       }
-      e.target.textContent = T.copied;
+      const btn = e.currentTarget;
+      btn.textContent = T.copied;
+      btn.classList.add("done");
     };
 
     dialog.querySelector("#study-close").onclick = () => {
