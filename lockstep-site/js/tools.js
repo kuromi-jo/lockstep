@@ -64,6 +64,7 @@
     };
     ["pointerdown", "keydown", "input", "touchstart", "wheel"].forEach((e) => document.addEventListener(e, reset, { passive: true, capture: true }));
     setInterval(() => {
+      if (window.idlePaused) { idle = 0; return; } // e.g. waiting for an emailed code
       idle++;
       if (idle === warn && !banner) {
         banner = document.createElement("div");

@@ -160,6 +160,7 @@
     renderMeter();
 
     const views = { welcome, lock, pin: credential, pattern: credential, password: credential, lockopts, locktest, biometric, encryption, review, settings };
+    window.idlePaused = !!state.recovery && state.recovery.stage === "code";
     content.innerHTML = views[screen]();
     window.applyWidths(content);
     if (screen === "pattern") drawPattern();
@@ -425,7 +426,7 @@
       if (left <= 0) {
         clearInterval(testTimer);
         state.test.status = "";
-        render();
+        if (!state.recovery) render(); // never redraw over the recovery screens
         return;
       }
       const el = $("lock-count");
@@ -455,7 +456,7 @@
         <h2 tabindex="-1">${T.recCodeTitle}</h2>
         <p class="flow-text">${T.recCodeText(esc(maskEmail(r.email)))}</p>
         <label class="flow-field" for="rec-code">${T.recCode}
-          <input id="rec-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" ${r.busy ? "disabled" : ""} />
+          <input id="rec-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" value="${esc(r.code || "")}" ${r.busy ? "disabled" : ""} />
         </label>
         ${err}
         <button type="button" class="flow-primary" data-action="rec-verify" ${r.busy ? "disabled" : ""}>${r.busy ? T.recVerifying : `${T.recVerify} ${icon("check", 17)}`}</button>
@@ -497,15 +498,17 @@
     r.busy = false;
     if (res.error) { r.error = res.error; Study.event("recovery", `send-${res.error}`); render(); return $("rec-email")?.focus(); }
     r.token = res.token;
+    r.code = "";
     r.stage = "code";
     Study.event("recovery", "sent");
-    render(true);
-    $("rec-code")?.focus();
+    render();
+    content.scrollTop = 0;
+    $("rec-code")?.focus({ preventScroll: true });
   }
 
   async function recoveryVerify() {
     const r = state.recovery;
-    const code = ($("rec-code")?.value || "").replace(/\D/g, "");
+    const code = (r.code || "").replace(/\D/g, "");
     if (code.length !== 6) { r.error = "wrong"; render(); return $("rec-code")?.focus(); }
     r.busy = true; r.error = ""; render();
     const res = await recoveryApi("/api/recovery/verify", { email: r.email, code, token: r.token });
@@ -934,18 +937,20 @@
         return;
       }
       case "rec-start":
-        state.recovery = { stage: "email", email: "", token: "", error: "", busy: false };
+        state.recovery = { stage: "email", email: "", token: "", error: "", busy: false, code: "" };
         Study.event("recovery", "start");
         render(true);
         return $("rec-email")?.focus();
       case "rec-send": return recoverySend();
       case "rec-verify": return recoveryVerify();
       case "rec-other":
-        state.recovery = { stage: "email", email: "", token: "", error: "", busy: false };
+        state.recovery = { stage: "email", email: "", token: "", error: "", busy: false, code: "" };
         render(true);
         return $("rec-email")?.focus();
       case "rec-cancel":
         state.recovery = null;
+        if (state.test.lockedUntil > Date.now()) startLockoutTimer();
+        else state.test.status = "";
         return render(true);
       case "rec-newlock":
         state.security.lock = { type: null, status: "unset", strong: false };
@@ -998,6 +1003,12 @@
         meter.innerHTML = strengthMarkup(e.first);
       }
       renderMeter();
+    } else if (t.id === "rec-code" && state.recovery) {
+      t.value = t.value.replace(/\D/g, "").slice(0, 6);
+      state.recovery.code = t.value;
+      if (state.recovery.error) { state.recovery.error = ""; content.querySelector(".flow-error")?.remove(); }
+    } else if (t.id === "rec-email" && state.recovery) {
+      state.recovery.email = t.value;
     } else if (t.id === "custom-len") {
       t.value = t.value.replace(/\D/g, "").slice(0, 2);
       state.customLength = t.value;
