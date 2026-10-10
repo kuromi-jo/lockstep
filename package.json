@@ -1,0 +1,9 @@
+{
+  "name": "lockstep",
+  "private": true,
+  "type": "module",
+  "description": "Lockstep usable-security prototype: static site + Netlify Functions for email recovery (Brevo).",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Lockstep — Usable Security Prototype</title>
+  <meta name="description" content="A calm, understandable mobile security setup prototype for first-time and non-technical users." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="css/fonts.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="Lockstep home">
+        <img src="assets/logo.svg" alt="" width="32" height="32" />
+        <span>lockstep</span>
+      </a>
+      <div class="topbar-actions">
+        <span class="demo-chip label-caps"><span class="pulse-dot"></span> Simulation only</span>
+        <span class="prototype-badge label-caps">Prototype / 03</span>
+      </div>
+    </header>
+
+    <section class="intro-grid" id="top">
+      <div class="intro-copy">
+        <p class="kicker label-caps">A calmer security setup</p>
+        <h1>Make your phone<br /><em>harder to misuse.</em></h1>
+        <p class="intro-text">Lockstep explains the protection before it asks for a decision — then keeps the consequence visible if you skip it.</p>
+        <div class="intro-meta">
+          <span><i data-icon="sparkles" data-size="15"></i> Plain language first</span>
+          <span>04 steps / 3 layers</span>
+        </div>
+        <div class="hero-actions">
+          <a class="entry-cta" href="setup.html">Start mobile security setup <i data-icon="arrowRight" data-size="17"></i></a>
+          <button class="secondary-cta" type="button" id="explore-map">Explore the protection map</button>
+        </div>
+        <p class="security-disclaimer"><i data-icon="shieldCheck" data-size="15"></i> This is a product demonstration. It cannot change device settings.</p>
+      </div>
+
+      <div class="hero-art">
+        <svg class="hero-illustration" viewBox="0 0 440 400" role="img" aria-label="Illustration of a smartphone protected by a lock, a fingerprint and a shield">
+          <ellipse cx="220" cy="372" rx="150" ry="14" fill="#172722" opacity=".06" />
+          <circle cx="330" cy="92" r="58" fill="#e6f24a" opacity=".55" />
+          <circle cx="96" cy="270" r="40" fill="#b9cbb7" opacity=".45" />
+          <g transform="rotate(-7 220 200)">
+            <rect x="140" y="30" width="170" height="330" rx="30" fill="#25352d" />
+            <rect x="151" y="41" width="148" height="308" rx="22" fill="#fbfaf6" />
+            <rect x="196" y="41" width="58" height="13" rx="6" fill="#25352d" />
+            <rect x="168" y="78" width="40" height="4" rx="2" fill="#e6f24a" />
+            <rect x="212" y="78" width="40" height="4" rx="2" fill="#e6f24a" />
+            <rect x="256" y="78" width="26" height="4" rx="2" fill="#e1ded5" />
+            <circle cx="225" cy="150" r="34" fill="#e6f24a" />
+            <rect x="209" y="146" width="32" height="24" rx="4" fill="none" stroke="#172722" stroke-width="3.5" />
+            <path d="M215 146v-7a10 10 0 0 1 20 0v7" fill="none" stroke="#172722" stroke-width="3.5" stroke-linecap="round" />
+            <circle cx="225" cy="158" r="2.6" fill="#172722" />
+            <rect x="172" y="205" width="106" height="9" rx="4" fill="#172722" />
+            <rect x="172" y="222" width="80" height="9" rx="4" fill="#172722" />
+            <rect x="172" y="244" width="106" height="5" rx="2.5" fill="#d5d0c4" />
+            <rect x="172" y="255" width="92" height="5" rx="2.5" fill="#d5d0c4" />
+            <rect x="172" y="285" width="106" height="28" rx="2" fill="#172722" />
+            <rect x="200" y="297" width="40" height="4" rx="2" fill="#fbfaf6" />
+          </g>
+          <g transform="translate(300 214)">
+            <circle r="44" fill="#fbfaf6" stroke="#54705b" stroke-width="2.5" />
+            <circle r="36" fill="none" stroke="#b9cbb7" stroke-width="1.2" stroke-dasharray="4 4" />
+            <g transform="translate(-18 -18) scale(1.5)" fill="none" stroke="#54705b" stroke-width="1.8" stroke-linecap="round">
+              <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4" /><path d="M14 13.12c0 2.38 0 6.38-1 8.88" /><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02" /><path d="M2 12a10 10 0 0 1 18-6" /><path d="M21.8 16c.2-2 .131-5.354 0-6" /><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2" /><path d="M8.65 22c.21-.66.45-1.32.57-2" /><path d="M9 6.8a6 6 0 0 1 9 5.2v2" />
+            </g>
+          </g>
+          <g transform="translate(92 112) rotate(-10)">
+            <path d="M0 -34 28 -23v21c0 18-12 30-28 37-16-7-28-19-28-37v-21z" fill="#172722" />
+            <path d="m-11 1 8 8 15-16" fill="none" stroke="#e6f24a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        </svg>
+        <div class="hero-note"><span>01 / 04</span><strong>Explain first.</strong><small>Then let people choose.</small></div>
+        <div class="hero-stamp"><i data-icon="lock" data-size="14"></i> No secret stored</div>
+      </div>
+    </section>
+
+    <section class="workspace" id="workspace" aria-label="Interactive security setup prototype">
+      <aside class="context-panel">
+        <p class="panel-label label-caps">The new flow</p>
+        <h2>Security should feel like a guide, not a test.</h2>
+        <p>One choice per screen. Concrete consequences. Recovery paths that stay visible.</p>
+        <div class="principles">
+          <div><b>C</b><span><strong>Confidentiality.</strong> Keep apps and messages private.</span></div>
+          <div><b>I</b><span><strong>Integrity.</strong> Keep the device trustworthy.</span></div>
+          <div><b>A</b><span><strong>Availability.</strong> Keep recovery visible and usable.</span></div>
+        </div>
+        <div class="security-boundary">
+          <div class="boundary-heading"><i data-icon="shieldCheck" data-size="16"></i><strong>Prototype boundary</strong></div>
+          <p>This phone is a tour of the real setup screens. The setup itself runs in memory only: entries are checked, then cleared, and nothing is saved.</p>
+        </div>
+      </aside>
+
+      <section class="phone-stage">
+        <div class="phone-frame">
+          <div class="phone-speaker"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span>9:41</span><span>••• 100%</span></div>
+            <div class="flow-header">
+              <button class="icon-button" type="button" id="prev-step" aria-label="Previous step"><i data-icon="arrowLeft"></i></button>
+              <span>Tour of the setup</span>
+              <span class="step-count" id="step-count">01 / 04</span>
+            </div>
+            <div class="step-rail" id="step-rail" aria-label="Setup progress"></div>
+            <div class="security-meter" id="meter-box">
+              <div class="meter-top label-caps"><span>Protection level</span><strong id="meter-label">Needs attention</strong></div>
+              <div class="meter-track"><span id="meter-fill"></span></div>
+              <p id="meter-message">Add another layer to make misuse harder.</p>
+            </div>
+            <div id="phone-content" aria-live="polite"></div>
+            <div class="phone-footer">
+              <span><i data-icon="shieldCheck" data-size="15"></i> Tour only · <a href="setup.html">Start setup</a></span>
+              <button type="button" id="how-it-works">How this works</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="status-panel">
+        <p class="panel-label label-caps">At a glance</p>
+        <h2>Your protection map</h2>
+        <p>Three layers, each with a different job.</p>
+        <div class="status-list" id="status-list"></div>
+        <div class="status-tip"><span class="tip-mark">↗</span><span>Toggle the layers in the simulator below to see the tradeoff, then start the real setup to try it yourself.</span></div>
+      </aside>
+    </section>
+
+    <section class="simulator-section" aria-labelledby="simulator-title">
+      <div class="simulator-intro">
+        <p class="panel-label label-caps">Try the tradeoff</p>
+        <h2 id="simulator-title">Find your comfort line.</h2>
+        <p>Turn protections on or off and see the conversation in two dimensions: what you gain in protection, and what you gain in everyday ease.</p>
+        <div class="simulator-callout"><span class="tip-mark">↗</span><strong id="sim-headline"></strong><small id="sim-copy"></small></div>
+      </div>
+      <div class="simulator-card" id="simulator-card"></div>
+    </section>
+
+    <footer class="site-footer">
+      <span class="label-caps">Lockstep / Usable Security Group 01</span>
+      <span class="label-caps">Concept prototype · IT 021 Usable Security</span>
+      <nav class="research-links label-caps" aria-label="Researcher tools">
+        <a href="baseline.html">Baseline flow</a>
+        <a href="setup.html?study=1">Study: redesign</a>
+        <a href="baseline.html?study=1">Study: baseline</a>
+        <a href="setup.html?lang=fil">Filipino</a>
+      </nav>
+      <button class="reset-button" type="button" id="reset-demo"><i data-icon="rotate" data-size="12"></i> Reset demo</button>
+    </footer>
+  </main>
+
+  <div id="modal-root"></div>
+  <div id="toast-root"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/home.js"></script>
+</body>
+</html>

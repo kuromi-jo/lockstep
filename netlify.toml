@@ -1,0 +1,12 @@
+# Netlify: publish the static site and deploy the email-recovery functions.
+# Required environment variables (Site settings → Environment variables):
+#   BREVO_API_KEY        Brevo → SMTP & API → API keys (keep secret; never put it in the site files)
+#   BREVO_SENDER_EMAIL   A sender address verified in Brevo → Senders
+#   BREVO_SENDER_NAME    Optional display name, e.g. "Lockstep demo"
+#   RECOVERY_SECRET      A random string of 32+ characters (used to sign codes)
+[build]
+  publish = "lockstep-site"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"

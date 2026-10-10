@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Baseline Setup — Lockstep</title>
+  <meta name="description" content="A deliberately plain, typical phone security setup used as the baseline in the Lockstep usability test." />
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg" />
+  <link rel="stylesheet" href="css/fonts.css" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="flow-page" data-study-name="A">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Lockstep home">
+      <img src="assets/logo.svg" alt="" width="32" height="32" />
+      <span>lockstep</span>
+    </a>
+    <div class="topbar-actions">
+      <span data-study-slot></span>
+      <span class="demo-chip label-caps"><span class="pulse-dot"></span> Simulation only</span>
+    </div>
+  </header>
+
+  <main class="flow-main">
+    <div class="flow-chrome">
+      <div>
+        <h1 data-t="baseTitle">Baseline setup — typical phone flow</h1>
+        <p data-t="baseSub">A deliberately plain version used for comparison in the usability test.</p>
+      </div>
+      <div class="flow-chrome-side">
+        <div id="tools-slot"></div>
+        <a class="flow-exit" href="index.html"><i data-icon="arrowLeft" data-size="15"></i> <span data-t="backToLockstep">Back to Lockstep</span></a>
+      </div>
+    </div>
+
+    <div class="flow-phone-shell">
+      <div class="flow-notch"></div>
+      <div class="flow-screen base-screen">
+        <div class="flow-status"><span>9:41</span><span>••• 100%</span></div>
+        <section class="flow-content" id="flow-content" aria-live="polite"></section>
+        <div class="flow-home-indicator"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="modal-root"></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/study.js"></script>
+  <script src="js/tools.js"></script>
+  <script src="js/baseline.js"></script>
+</body>
+</html>
