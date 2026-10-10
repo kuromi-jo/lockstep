@@ -39,6 +39,7 @@
     lockOptions: { notif: "hide", autoLock: 30, showPattern: false },
     verifier: null, // salted PBKDF2 hash of the lock (never the lock itself)
     test: { attempts: 0, lockedUntil: 0, status: "", pattern: [] },
+    recoveryEmail: "", // set by the owner during setup; recovery can only send here
     recovery: null, // { stage: "email" | "code" | "done", email, token, error, busy }
   };
 
@@ -333,7 +334,10 @@
       <fieldset class="opt-group"><legend>${T.notifLabel}</legend>${notif}</fieldset>
       <fieldset class="opt-group"><legend>${T.autoLockLabel}</legend>${auto}</fieldset>
       ${isPattern ? `<label class="opt switch-opt"><input type="checkbox" id="show-pattern" role="switch" ${o.showPattern ? "checked" : ""} /><span><strong>${T.showPatternLabel}</strong><small>${T.showPatternNote}</small></span></label>` : ""}
-      <p class="flow-hint left">${icon("info", 12)} ${T.forgotLock}</p>
+      <label class="flow-field" for="rec-setup">${T.recSetupLabel}
+        <input id="rec-setup" type="email" autocomplete="email" maxlength="254" placeholder="${T.recSetupPlaceholder}" value="${esc(state.recoveryEmail)}" />
+      </label>
+      <p class="flow-hint left">${icon("shieldCheck", 12)} ${T.recSetupNote}</p>
       <button type="button" class="flow-primary" data-action="opts-continue">${T.continue} ${icon("arrowRight", 17)}</button>
       ${state.verifier ? `<button type="button" class="flow-secondary" data-action="to-test">${icon("lock", 16)} ${T.testLock}</button>` : ""}
     </div>`;
@@ -460,17 +464,23 @@
         </label>
         ${err}
         <button type="button" class="flow-primary" data-action="rec-verify" ${r.busy ? "disabled" : ""}>${r.busy ? T.recVerifying : `${T.recVerify} ${icon("check", 17)}`}</button>
-        <button type="button" class="flow-link" data-action="rec-other">${T.recOther}</button>
+        <button type="button" class="flow-link" data-action="rec-other">${T.recResend}</button>
+      </div>`;
+    }
+    if (!state.recoveryEmail) {
+      return `<div class="flow-card">
+        <div class="flow-icon">${icon("mail", 25)}</div>
+        <p class="flow-eyebrow">${T.recEyebrow}</p>
+        <h2 tabindex="-1">${T.recNoneTitle}</h2>
+        <p class="flow-text">${T.recNoneText}</p>
+        <button type="button" class="flow-primary" data-action="rec-cancel">${T.recCancel}</button>
       </div>`;
     }
     return `<div class="flow-card">
       <div class="flow-icon">${icon("mail", 25)}</div>
       <p class="flow-eyebrow">${T.recEyebrow}</p>
       <h2 tabindex="-1">${T.recTitle}</h2>
-      <p class="flow-text">${T.recText}</p>
-      <label class="flow-field" for="rec-email">${T.recEmail}
-        <input id="rec-email" type="email" autocomplete="email" maxlength="254" value="${esc(r.email)}" ${r.busy ? "disabled" : ""} />
-      </label>
+      <p class="flow-text">${T.recText(esc(maskEmail(state.recoveryEmail)))}</p>
       <p class="flow-hint left">${icon("shieldCheck", 12)} ${T.recConsent}</p>
       ${err}
       <button type="button" class="flow-primary" data-action="rec-send" ${r.busy ? "disabled" : ""}>${r.busy ? T.recSending : `${T.recSend} ${icon("arrowRight", 17)}`}</button>
@@ -491,12 +501,12 @@
 
   async function recoverySend() {
     const r = state.recovery;
-    r.email = ($("rec-email")?.value || "").trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(r.email)) { r.error = "invalid_email"; render(); return $("rec-email")?.focus(); }
+    r.email = state.recoveryEmail; // never an address typed at recovery time
+    if (!r.email) return;
     r.busy = true; r.error = ""; render();
     const res = await recoveryApi("/api/recovery/send", { email: r.email });
     r.busy = false;
-    if (res.error) { r.error = res.error; Study.event("recovery", `send-${res.error}`); render(); return $("rec-email")?.focus(); }
+    if (res.error) { r.error = res.error; Study.event("recovery", `send-${res.error}`); render(); return content.querySelector("[role=alert]")?.focus?.(); }
     r.token = res.token;
     r.code = "";
     r.stage = "code";
@@ -940,13 +950,12 @@
         state.recovery = { stage: "email", email: "", token: "", error: "", busy: false, code: "" };
         Study.event("recovery", "start");
         render(true);
-        return $("rec-email")?.focus();
+        return;
       case "rec-send": return recoverySend();
       case "rec-verify": return recoveryVerify();
       case "rec-other":
         state.recovery = { stage: "email", email: "", token: "", error: "", busy: false, code: "" };
-        render(true);
-        return $("rec-email")?.focus();
+        return render(true);
       case "rec-cancel":
         state.recovery = null;
         if (state.test.lockedUntil > Date.now()) startLockoutTimer();
@@ -960,7 +969,14 @@
         clearInterval(testTimer);
         state.returnToReview = state.history.includes("review");
         return go("lock");
-      case "opts-continue": return advance("biometric");
+      case "opts-continue": {
+        const email = ($("rec-setup")?.value || "").trim();
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setError(T.recErr.invalid_email); const f = $("rec-setup"); if (f) { f.value = email; f.focus(); } return; }
+        if (email !== state.recoveryEmail) Study.event("lockopt", email ? "recovery-email" : "no-recovery-email");
+        state.recoveryEmail = email;
+        state.entry.error = "";
+        return advance("biometric");
+      }
       case "to-test": return go("locktest");
       case "test-back": return back();
       case "test-unlock": return testUnlock();
@@ -1007,8 +1023,10 @@
       t.value = t.value.replace(/\D/g, "").slice(0, 6);
       state.recovery.code = t.value;
       if (state.recovery.error) { state.recovery.error = ""; content.querySelector(".flow-error")?.remove(); }
-    } else if (t.id === "rec-email" && state.recovery) {
-      state.recovery.email = t.value;
+    } else if (t.id === "rec-setup") {
+      // Save as soon as it's valid, so "Test your lock" works without pressing Continue first.
+      const v = t.value.trim();
+      if (!v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) state.recoveryEmail = v;
     } else if (t.id === "custom-len") {
       t.value = t.value.replace(/\D/g, "").slice(0, 2);
       state.customLength = t.value;
@@ -1027,7 +1045,7 @@
   content.addEventListener("keydown", (event) => {
     if (event.key === "Enter" && event.target.id === "secret") { event.preventDefault(); lockContinue(); }
     if (event.key === "Enter" && event.target.id === "test-secret") { event.preventDefault(); testUnlock(); }
-    if (event.key === "Enter" && event.target.id === "rec-email") { event.preventDefault(); recoverySend(); }
+    if (event.key === "Enter" && event.target.id === "rec-setup") { event.preventDefault(); content.querySelector('[data-action="opts-continue"]').click(); }
     if (event.key === "Enter" && event.target.id === "rec-code") { event.preventDefault(); recoveryVerify(); }
   });
 
