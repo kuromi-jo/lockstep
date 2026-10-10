@@ -550,3 +550,31 @@ body.text-lg .flow-content, body.text-lg .flow-meter, body.text-lg .flow-modal {
 .security-meter.moderate .meter-track span { background: var(--clay); } .security-meter.moderate strong { color: var(--clay); }
 .security-meter.strong .meter-track span { background: var(--sage-deep); }
 .phone-footer a { color: var(--sage-deep); }
+
+/* Usability study call-to-action (landing page) */
+.study-pill { display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 999px; background: var(--clay); color: #fff; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 6px 16px rgba(200, 121, 88, .28); }
+.study-pill:hover { background: #b5674a; }
+.study-band { max-width: 1200px; margin: 0 auto 90px; padding: 44px 48px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; background: var(--ink); color: #f4f0e8; scroll-margin-top: 20px; }
+.study-band .panel-label { color: var(--citron); }
+.study-band h2 { font-size: clamp(32px, 3.6vw, 48px); line-height: 1.04; color: #fff; }
+.study-band-copy > p { color: #c9d1cb; font-size: 15px; line-height: 1.6; max-width: 520px; }
+.study-band strong { color: #fff; }
+.study-steps { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 10px; }
+.study-steps li { display: flex; gap: 12px; align-items: center; font-size: 14px; color: #dfe5e0; }
+.study-steps span { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--citron); color: var(--ink); font-weight: 700; font-size: 12px; }
+.study-fine { display: flex; gap: 8px; align-items: flex-start; margin-top: 20px; font-size: 12px !important; color: #aab4ad !important; }
+.study-fine .ic { color: var(--citron); margin-top: 2px; }
+.study-band-actions { display: grid; gap: 12px; }
+.study-btn { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 20px 22px; background: var(--citron); color: var(--ink); text-decoration: none; transition: transform .16s var(--ease-out), background .2s; }
+.study-btn:hover { transform: translateY(-2px); background: #f0f86a; }
+.study-btn span { font-family: var(--serif); font-size: 24px; font-weight: 600; letter-spacing: -.03em; }
+.study-btn small { grid-column: 1; font-size: 12px; color: var(--sage-deep); font-weight: 600; }
+.study-btn .ic { grid-column: 2; grid-row: 1 / span 2; }
+.study-alt { justify-self: start; color: var(--citron); font-size: 13px; font-weight: 700; }
+@media (max-width: 800px) {
+  .study-band { grid-template-columns: 1fr; margin: 0 16px 60px; padding: 32px 22px; gap: 28px; }
+}
+@media (max-width: 700px) {
+  .topbar .prototype-badge { display: none; }
+  .study-pill { padding: 7px 12px; font-size: 11px; }
+}
