@@ -578,3 +578,26 @@ body.text-lg .flow-content, body.text-lg .flow-meter, body.text-lg .flow-modal {
   .topbar .prototype-badge { display: none; }
   .study-pill { padding: 7px 12px; font-size: 11px; }
 }
+
+/* Compact, fixed-height tour phone (same height on every slide) */
+.phone-screen { min-height: 0; height: 720px; }
+#phone-content { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+#phone-content::-webkit-scrollbar { display: none; }
+.phone-screen .step-rail { margin: 14px 0 14px; }
+.phone-screen .security-meter { padding: 10px 12px 9px; }
+.step-content.tour { padding: 20px 4px 10px; }
+.step-content.tour .flow-icon { width: 44px; height: 44px; }
+.step-content.tour .flow-eyebrow { margin: 14px 0 6px; }
+.step-content.tour h2 { font-size: 28px; }
+.step-content.tour .flow-text { margin-top: 8px; font-size: 13px; line-height: 1.5; }
+.step-content.tour .flow-biometric { width: 96px; height: 96px; margin: 4px auto 0; }
+.step-content.tour .flow-state { margin-top: 12px; padding: 9px 12px; }
+.step-content.tour .tour-options, .step-content.tour .tour-rows { margin-top: 12px; gap: 6px; }
+.step-content.tour .tour-options span { padding: 8px 12px; }
+.step-content.tour .tour-rows span { padding: 8px 10px; }
+.step-content.tour .flow-risk { margin-top: 12px; padding: 12px; }
+.step-content.tour .tour-note { margin-top: 12px; padding: 8px 10px; font-size: 10.5px; }
+.step-content.tour .step-actions { margin-top: 16px; gap: 10px; }
+@media (max-width: 700px) { .phone-screen { height: 640px; } }
+/* Study band now sits right after the hero */
+.study-band { margin-top: 0; margin-bottom: 100px; }

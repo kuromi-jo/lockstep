@@ -17,10 +17,10 @@
         <p class="flow-text">A screen lock stops people who pick up your phone from opening your messages, photos, or accounts.</p>
         <div class="tour-options" aria-hidden="true">
           <span><b>PIN</b><small>6 digits recommended</small>${icon("arrowRight", 15)}</span>
-          <span><b>Pattern</b><small>Quick, but easier to watch over your shoulder</small>${icon("arrowRight", 15)}</span>
+          <span><b>Pattern</b><small>Quick, but easier to watch</small>${icon("arrowRight", 15)}</span>
           <span><b>Password</b><small>Strongest protection</small>${icon("arrowRight", 15)}</span>
         </div>
-        <p class="tour-note">Weak PINs like 1234 are blocked, passwords are checked against known data breaches, and skipping asks you to confirm the risk first.</p>`,
+        <p class="tour-note">Weak PINs like 1234 are blocked, and skipping asks you to confirm the risk first.</p>`,
     },
     {
       id: "biometric", label: "Biometrics",
