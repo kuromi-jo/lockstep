@@ -6,7 +6,7 @@
 **Form order:** Consent → About You → Pre-Check → Version A → Version B → Lockstep Features → Post-Check → Comparison
 
 > ### What "Version A" and "Version B" mean
-> **Version A = BASELINE ("Before").** The typical phone setup: choose a lock, a fixed 4-digit PIN, a plain "Skip" with no warning, an unexplained encryption switch, and no summary at the end.
+> **Version A = BASELINE ("Before").** The typical phone setup: choose a lock, a fixed 4-digit PIN, a plain "Skip" with no warning, an unexplained encryption switch that starts off, and no summary at the end.
 > **Version B = LOCKSTEP ("After").** The redesign: plain-language explanations, a live protection meter, skip warnings, encryption "On, recommended", and a review screen with "Fix now".
 > **A10–A20 and B10–B20 have the same wording.** Comparing them gives your Before/After results.
 

@@ -1,5 +1,5 @@
 // Baseline flow: a reconstruction of the conventional default setup pattern described in the
-// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", an
+// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", an off-by-default
 // unexplained encryption toggle, and no summary at the end. Used only for comparison testing.
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -38,7 +38,7 @@
     },
   }[T.lang];
 
-  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: true, fpScanning: false };
+  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: false, fpScanning: false };
 
   function go(screen) {
     state.screen = screen;
