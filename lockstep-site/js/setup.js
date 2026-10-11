@@ -396,7 +396,7 @@
       ${input}
       ${status}
       ${guided ? `<p class="flow-notice" role="status">${icon("info", 13)} ${t.done ? T.testStepDone : t.okSeen && !t.wrongSeen ? T.testStep2(tl) : t.wrongSeen ? T.testStep3(tl) : T.testStep1(tl)}</p>` : ""}
-      <button type="button" class="flow-primary" data-action="test-unlock" ${locked || t.done ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
+      <button type="button" class="flow-primary" data-action="test-unlock" ${locked || (t.done && state.testInFlow) ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
       ${t.attempts >= 5 && t.status !== "ok" ? `<button type="button" class="flow-secondary" data-action="rec-start">${icon("mail", 16)} ${T.recLink}</button>` : ""}
       <div class="lesson"><strong>${T.testWhy}</strong><p>${T.testMath(g.what, time)}</p></div>
       ${state.testInFlow && !t.done ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
@@ -416,10 +416,13 @@
   async function testUnlock() {
     const t = state.test;
     if (t.lockedUntil > Date.now() || !state.verifier) return;
+    if (t.done && !state.testInFlow) t.done = false; // a finished guided test never blocks later tests
+    if (t.busy) return; // ignore double taps while the check runs
     const guess = state.security.lock.type === "pattern" ? t.pattern.join("") : $("test-secret")?.value || "";
     if (!guess) return;
+    t.busy = true;
     t.pattern = [];
-    const ok = await Sec.checkVerifier(guess, state.verifier);
+    const ok = await Sec.checkVerifier(guess, state.verifier).finally(() => { t.busy = false; });
     if (ok) {
       t.status = "ok";
       t.okSeen = true;
