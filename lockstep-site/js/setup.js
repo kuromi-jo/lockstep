@@ -378,7 +378,10 @@
         <input id="test-secret" type="password" ${type === "pin" ? 'inputmode="numeric"' : ""} autocomplete="off" ${locked ? "disabled" : ""} />
       </label>`;
     }
-    const status = locked
+    // Build 1.1 guides the test: unlock, try a wrong one, then unlock again to move on.
+    const guided = V11 && state.testInFlow;
+    const tl = type === "pin" ? lockLabel(type) : lockLabel(type).toLowerCase();
+    const status = guided && !locked && t.status !== "wrong" ? "" : locked
       ? `<p class="flow-error" role="alert"><span id="lock-count">${T.testLocked(secs)}</span></p><button type="button" class="flow-link" data-action="skip-wait">${T.skipWait}</button>`
       : t.status === "ok" ? `<div class="flow-state" role="status">${icon("check", 16)} ${T.testOk}</div>`
       : t.status === "wrong" ? `<p class="flow-error" role="alert">${T.testWrong(5 - (t.attempts % 5))}</p>` : "";
@@ -389,12 +392,11 @@
       <p class="flow-text">${T.testText(lockLabel(type))}</p>
       ${input}
       ${status}
-      ${V11 ? `<p class="flow-notice" role="status">${icon("info", 13)} ${!t.okSeen ? T.testStep1(lockLabel(type)) : t.attempts === 0 ? T.testStep2(lockLabel(type)) : T.testStepDone}</p>` : ""}
-      <button type="button" class="${V11 && t.okSeen ? "flow-secondary" : "flow-primary"}" data-action="test-unlock" ${locked ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
-      ${state.testInFlow && t.okSeen ? `<button type="button" class="flow-primary" data-action="test-continue">${T.continue} ${icon("arrowRight", 17)}</button>` : ""}
+      ${guided ? `<p class="flow-notice" role="status">${icon("info", 13)} ${t.done ? T.testStepDone : t.okSeen && !t.wrongSeen ? T.testStep2(tl) : t.wrongSeen ? T.testStep3(tl) : T.testStep1(tl)}</p>` : ""}
+      <button type="button" class="flow-primary" data-action="test-unlock" ${locked || t.done ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
       ${t.attempts >= 5 && t.status !== "ok" ? `<button type="button" class="flow-secondary" data-action="rec-start">${icon("mail", 16)} ${T.recLink}</button>` : ""}
       <div class="lesson"><strong>${T.testWhy}</strong><p>${T.testMath(g.what, time)}</p></div>
-      ${state.testInFlow && !t.okSeen ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
+      ${state.testInFlow && !t.done ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
       <button type="button" class="flow-link" data-action="test-back">${state.history[state.history.length - 1] === "lockopts" ? T.backToOptions : T.back}</button>
     </div>`;
   }
@@ -420,9 +422,16 @@
       t.okSeen = true;
       t.attempts = 0;
       Study.event("locktest", "ok");
+      if (V11 && state.testInFlow && t.wrongSeen) {
+        t.done = true;
+        render();
+        setTimeout(() => { if (state.screen === "locktest" && state.testInFlow) { state.testInFlow = false; advance("biometric"); } }, 1400);
+        return;
+      }
     } else {
       t.attempts++;
       t.status = "wrong";
+      t.wrongSeen = true;
       Study.event("locktest", "wrong");
       if (t.attempts % 5 === 0) {
         t.lockedUntil = Date.now() + 30000;
