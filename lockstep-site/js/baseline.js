@@ -1,14 +1,12 @@
 // Baseline flow: a reconstruction of the conventional default setup pattern described in the
-// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", an off-by-default
-// unexplained encryption toggle, and no summary at the end. Used only for comparison testing.
+// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", automatic
+// (unshown) encryption, and no summary at the end. Used only for comparison testing.
 (function () {
   const $ = (id) => document.getElementById(id);
   const T = window.T;
   const Study = window.Study;
-  // ?v=1.1 matches current phones: no encryption screen, because Android 10+ (file-based
-  // encryption) and iPhone (Data Protection) encrypt storage automatically. Build 1.0 keeps
-  // the toggle that Round 1 participants used.
-  const V11 = new URLSearchParams(location.search).get("v") === "1.1";
+  // No encryption screen, matching current phones: Android 10+ (file-based encryption) and
+  // iPhone (Data Protection) encrypt storage automatically. Round 1 used an off-by-default toggle.
   const content = $("flow-content");
 
   const S = {
@@ -42,7 +40,7 @@
     },
   }[T.lang];
 
-  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: V11, fpScanning: false };
+  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: true, fpScanning: false };
 
   function go(screen) {
     state.screen = screen;
@@ -169,13 +167,13 @@
         state.lock = "pattern";
         return go("biometric");
       }
-      case "skip-bio": Study.event("skip", "biometric"); return go(V11 ? "done" : "encryption");
+      case "skip-bio": Study.event("skip", "biometric"); return go("done");
       case "add-fp":
         state.fpScanning = true;
         render();
         setTimeout(() => { state.fpScanning = false; state.bio = true; render(); }, 1600);
         return;
-      case "to-enc": return go(V11 ? "done" : "encryption");
+      case "to-enc": return go("done");
       case "to-done":
         state.enc = $("base-enc").checked;
         if (!state.enc) Study.event("skip", "encryption");
