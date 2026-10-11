@@ -148,6 +148,8 @@
   const layerHint = (id) => {
     const [on, backed] = checks()[id];
     if (!on || backed) return "";
+    // Build 1.1: suggest strengthening the lock the user chose, not switching to another type.
+    if (id === "lock" && V11) return T.hintStronger[state.security.lock.type] || T.hintStrongLock;
     return id === "lock" ? T.hintStrongLock : T.hintNeedsLock;
   };
 

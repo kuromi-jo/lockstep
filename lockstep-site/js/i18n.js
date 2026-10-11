@@ -124,6 +124,7 @@
     stNotSet: "Not set", stLater: "Remind me later", stOn: "On", stOffLost: "Off — data readable if lost",
     hintStrongLock: "Half done: use a 6+ digit PIN, a stronger password, or a 6+ dot pattern",
     hintNeedsLock: "Half done: needs a screen lock as backup",
+    hintStronger: { pin: "Saved. A 6+ digit PIN would make it stronger.", pattern: "Saved. A longer pattern (6+ dots) would make it stronger.", password: "Saved. A longer password would make it stronger." },
     // settings
     setupComplete: "Setup complete", securitySettings: "Security settings",
     readyTitle: "Your phone is ready.", glanceTitle: "Your setup, at a glance.",
@@ -377,6 +378,7 @@
     stNotSet: "Hindi naka-set", stLater: "Paalalahanan mamaya", stOn: "Naka-on", stOffLost: "Naka-off — mababasa kapag nawala",
     hintStrongLock: "Kalahati pa lang: gumamit ng 6+ na numerong PIN, mas malakas na password, o pattern na 6+ tuldok",
     hintNeedsLock: "Kalahati pa lang: kailangan ng screen lock bilang backup",
+    hintStronger: { pin: "Naka-save. Mas malakas kung 6+ na numero ang PIN.", pattern: "Naka-save. Mas malakas kung mas mahaba ang pattern (6+ tuldok).", password: "Naka-save. Mas malakas kung mas mahaba ang password." },
     setupComplete: "Tapos na ang setup", securitySettings: "Settings ng seguridad",
     readyTitle: "Handa na ang telepono mo.", glanceTitle: "Ang setup mo, sa isang tingin.",
     readyText: "Naka-save ang mga pinili mo para sa demo na ito. Pwede ka nang lumabas o suriin muna ang isang patong.",
