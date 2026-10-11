@@ -374,7 +374,8 @@
         <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline id="test-line" points=""/></svg>
         ${Array.from({ length: 9 }, (_, i) => `<button type="button" class="pattern-dot" data-tdot="${i}" aria-label="${T.dot(i + 1)}" ${locked ? "disabled" : ""}><span></span></button>`).join("")}
       </div>
-      <p class="flow-hint" id="test-hint" aria-live="polite">${T.testDrawn(t.pattern.length)}</p>`;
+      <p class="flow-hint" id="test-hint" aria-live="polite">${T.testDrawn(t.pattern.length)}</p>
+      <button type="button" class="flow-link" data-action="test-clear">${T.clearPattern}</button>`;
     } else {
       input = `<label class="flow-field" for="test-secret">${lockLabel(type)}
         <input id="test-secret" type="password" ${type === "pin" ? 'inputmode="numeric"' : ""} autocomplete="off" ${locked ? "disabled" : ""} />
@@ -755,6 +756,7 @@
   }
 
   let dragging = false;
+  let testGestureStart = 0;
   function dotAt(pad, x, y) {
     const r = pad.getBoundingClientRect();
     const px = ((x - r.left) / r.width) * 100;
@@ -775,7 +777,13 @@
       event.preventDefault();
       dragging = "test";
       testPad.setPointerCapture?.(event.pointerId);
-      if (!state.test.pattern.includes(i)) { state.test.pattern.push(i); drawTestPattern(); }
+      // After a full drawn gesture, the next one starts a fresh attempt, like a real lock screen.
+      // Before this, a redraw was appended to the earlier dots, so even the right pattern failed.
+      // Single taps still add dots one by one (tap-in-sequence input).
+      if (state.test.gestureDone) { state.test.pattern = []; state.test.gestureDone = false; }
+      testGestureStart = state.test.pattern.length;
+      if (!state.test.pattern.includes(i)) state.test.pattern.push(i);
+      drawTestPattern();
       return;
     }
     const pad = event.target.closest("#pattern-pad");
@@ -799,7 +807,10 @@
     const i = dotAt(pad, event.clientX, event.clientY);
     if (i >= 0) addDot(i);
   });
-  document.addEventListener("pointerup", () => (dragging = false));
+  document.addEventListener("pointerup", () => {
+    if (dragging === "test" && state.test.pattern.length - testGestureStart >= 2) state.test.gestureDone = true;
+    dragging = false;
+  });
   document.addEventListener("pointercancel", () => (dragging = false));
 
   /* ---------- Biometrics ---------- */
@@ -1029,6 +1040,7 @@
       case "to-test": state.testInFlow = false; return go("locktest");
       case "test-back": return back();
       case "test-unlock": return testUnlock();
+      case "test-clear": state.test.pattern = []; state.test.gestureDone = false; return drawTestPattern();
       case "skip-wait":
         state.test.lockedUntil = 0;
         state.test.status = "";
