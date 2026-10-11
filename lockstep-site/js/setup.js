@@ -182,7 +182,7 @@
 
   // Fig. 1 — Intro, with everyday wording first and C/I/A as small tags (DF-03)
   function welcome() {
-    const goal = (title, sub, tag, letter) => `<div><b>${letter}</b><strong>${title}</strong><small>${sub}</small><em>${tag}</em></div>`;
+    const goal = (title, sub, ic) => `<div><b>${icon(ic, 15)}</b><strong>${title}</strong><small>${sub}</small></div>`;
     return `<div class="flow-card centered">
       <div class="flow-icon brand">${icon("shieldCheck", 28)}</div>
       <p class="flow-eyebrow">${T.welcomeEyebrow}</p>
@@ -190,9 +190,9 @@
       <p class="flow-text">${T.welcomeText}</p>
       <p class="flow-mini-label">${T.threeGoals}</p>
       <div class="cia-grid">
-        ${goal(T.goalPrivate, T.goalPrivateSub, T.goalPrivateTag, "C")}
-        ${goal(T.goalTrust, T.goalTrustSub, T.goalTrustTag, "I")}
-        ${goal(T.goalRecover, T.goalRecoverSub, T.goalRecoverTag, "A")}
+        ${goal(T.goalPrivate, T.goalPrivateSub, "lock")}
+        ${goal(T.goalTrust, T.goalTrustSub, "shieldCheck")}
+        ${goal(T.goalRecover, T.goalRecoverSub, "mail")}
       </div>
       <p class="flow-note recommend">${icon("shieldCheck", 14)} ${T.recommended}</p>
       <button type="button" class="flow-primary" data-action="start">${T.getStarted} ${icon("arrowRight", 17)}</button>
@@ -288,6 +288,7 @@
       <p class="flow-eyebrow">${T.lockEyebrowType(lockLabel(mode))}</p>
       <h2 tabindex="-1">${heading}</h2>
       <p class="flow-text">${intro}</p>
+      ${mode === "pin" && !confirming ? `<p class="flow-notice">${icon("info", 13)} ${T.pinRules}</p>` : ""}
       ${body}
       ${errorLine()}
       <button type="button" class="flow-primary" data-action="lock-continue" ${e.checking ? "disabled" : ""}>${e.checking ? T.checkingBreaches : confirming ? `${T.saveLock} ${icon("arrowRight", 17)}` : `${T.continue} ${icon("arrowRight", 17)}`}</button>
@@ -340,7 +341,6 @@
       </label>
       <p class="flow-hint left">${icon("shieldCheck", 12)} ${T.recSetupNote}</p>
       <button type="button" class="flow-primary" data-action="opts-continue">${T.continue} ${icon("arrowRight", 17)}</button>
-      ${state.verifier ? `<button type="button" class="flow-secondary" data-action="to-test">${icon("lock", 16)} ${T.testLock}</button>` : ""}
     </div>`;
   }
 
@@ -383,9 +383,12 @@
       <p class="flow-text">${T.testText(lockLabel(type))}</p>
       ${input}
       ${status}
-      <button type="button" class="flow-primary" data-action="test-unlock" ${locked ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
+      ${state.testInFlow && t.status === "ok"
+        ? `<button type="button" class="flow-primary" data-action="test-continue">${T.continue} ${icon("arrowRight", 17)}</button>`
+        : `<button type="button" class="flow-primary" data-action="test-unlock" ${locked ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>`}
       ${t.attempts >= 5 && t.status !== "ok" ? `<button type="button" class="flow-secondary" data-action="rec-start">${icon("mail", 16)} ${T.recLink}</button>` : ""}
       <div class="lesson"><strong>${T.testWhy}</strong><p>${T.testMath(g.what, time)}</p></div>
+      ${state.testInFlow && t.status !== "ok" ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
       <button type="button" class="flow-link" data-action="test-back">${state.history[state.history.length - 1] === "lockopts" ? T.backToOptions : T.back}</button>
     </div>`;
   }
@@ -880,7 +883,6 @@
       <div class="flow-icon warning">${icon("shieldAlert", 23)}</div>
       <h2 id="skip-title" tabindex="-1">${copy.title}</h2>
       <p id="skip-body">${copy.body}</p>
-      <p>${T.skipReminder}</p>
       <div class="flow-modal-actions">
         <button type="button" class="flow-primary" data-close>${T.setUpNow}</button>
         <button type="button" class="flow-link" data-confirm>${T.remindLater}</button>
@@ -993,9 +995,19 @@
         // can finish (and copy results) instead of redoing the whole setup.
         state.returnToReview = true;
         state.recovered = true;
+        state.testInFlow = false;
         return go("lock");
-      case "opts-continue": return saveRecoveryEmail() && advance("biometric");
-      case "to-test": return state.screen === "lockopts" && !saveRecoveryEmail() ? undefined : go("locktest");
+      case "opts-continue":
+        if (!saveRecoveryEmail()) return;
+        if (state.returnToReview) return advance("biometric");
+        state.testInFlow = true;
+        return go("locktest");
+      case "test-continue":
+      case "test-skip":
+        if (d.action === "test-skip" && state.test.status !== "ok") Study.event("locktest", "skipped");
+        state.testInFlow = false;
+        return advance("biometric");
+      case "to-test": state.testInFlow = false; return go("locktest");
       case "test-back": return back();
       case "test-unlock": return testUnlock();
       case "skip-wait":
