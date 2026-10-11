@@ -7,6 +7,8 @@
   const icon = window.icon;
   const esc = window.escapeHtml;
   const T = window.T;
+  // ?v=1.1 opens build 1.1 (Round 2 changes); without it, build 1.0 runs unchanged.
+  const V11 = new URLSearchParams(location.search).get("v") === "1.1";
   const Sec = window.LockstepSecurity;
   const Study = window.Study;
   const content = $("flow-content");
@@ -182,7 +184,10 @@
 
   // Fig. 1 — Intro, with everyday wording first and C/I/A as small tags (DF-03)
   function welcome() {
-    const goal = (title, sub, ic) => `<div><b>${icon(ic, 15)}</b><strong>${title}</strong><small>${sub}</small></div>`;
+    // Build 1.1 drops the C/I/A tags (Round 1: 9 of 20 found them hard).
+    const goal = (title, sub, ic, tag, letter) => V11
+      ? `<div><b>${icon(ic, 15)}</b><strong>${title}</strong><small>${sub}</small></div>`
+      : `<div><b>${letter}</b><strong>${title}</strong><small>${sub}</small><em>${tag}</em></div>`;
     return `<div class="flow-card centered">
       <div class="flow-icon brand">${icon("shieldCheck", 28)}</div>
       <p class="flow-eyebrow">${T.welcomeEyebrow}</p>
@@ -190,9 +195,9 @@
       <p class="flow-text">${T.welcomeText}</p>
       <p class="flow-mini-label">${T.threeGoals}</p>
       <div class="cia-grid">
-        ${goal(T.goalPrivate, T.goalPrivateSub, "lock")}
-        ${goal(T.goalTrust, T.goalTrustSub, "shieldCheck")}
-        ${goal(T.goalRecover, T.goalRecoverSub, "mail")}
+        ${goal(T.goalPrivate, T.goalPrivateSub, "lock", T.goalPrivateTag, "C")}
+        ${goal(T.goalTrust, T.goalTrustSub, "shieldCheck", T.goalTrustTag, "I")}
+        ${goal(T.goalRecover, T.goalRecoverSub, "mail", T.goalRecoverTag, "A")}
       </div>
       <p class="flow-note recommend">${icon("shieldCheck", 14)} ${T.recommended}</p>
       <button type="button" class="flow-primary" data-action="start">${T.getStarted} ${icon("arrowRight", 17)}</button>
@@ -239,7 +244,7 @@
       password: confirming ? T.passwordConfirmTitle : T.passwordTitle,
     }[mode];
     const intro = {
-      pin: confirming ? T.pinConfirmText : T.pinText(len),
+      pin: confirming ? T.pinConfirmText : V11 ? T.pinText11(len) : T.pinText(len),
       pattern: confirming ? T.patternConfirmText : T.patternText,
       password: confirming ? T.passwordConfirmText : T.passwordText,
     }[mode];
@@ -288,7 +293,7 @@
       <p class="flow-eyebrow">${T.lockEyebrowType(lockLabel(mode))}</p>
       <h2 tabindex="-1">${heading}</h2>
       <p class="flow-text">${intro}</p>
-      ${mode === "pin" && !confirming ? `<p class="flow-notice">${icon("info", 13)} ${T.pinRules}</p>` : ""}
+      ${V11 && mode === "pin" && !confirming ? `<p class="flow-notice">${icon("info", 13)} ${T.pinRules}</p>` : ""}
       ${body}
       ${errorLine()}
       <button type="button" class="flow-primary" data-action="lock-continue" ${e.checking ? "disabled" : ""}>${e.checking ? T.checkingBreaches : confirming ? `${T.saveLock} ${icon("arrowRight", 17)}` : `${T.continue} ${icon("arrowRight", 17)}`}</button>
@@ -341,6 +346,7 @@
       </label>
       <p class="flow-hint left">${icon("shieldCheck", 12)} ${T.recSetupNote}</p>
       <button type="button" class="flow-primary" data-action="opts-continue">${T.continue} ${icon("arrowRight", 17)}</button>
+      ${!V11 && state.verifier ? `<button type="button" class="flow-secondary" data-action="to-test">${icon("lock", 16)} ${T.testLock}</button>` : ""}
     </div>`;
   }
 
@@ -877,12 +883,13 @@
 
   // Informed skip: name the consequence, offer the safer path first (R3).
   function skipModal(target) {
-    const copy = target === "lock" ? { title: T.skipLockTitle, body: T.skipLockBody } : { title: T.skipBioTitle, body: T.skipBioBody };
+    const copy = target === "lock" ? { title: T.skipLockTitle, body: V11 ? T.skipLockBody11 : T.skipLockBody } : { title: T.skipBioTitle, body: V11 ? T.skipBioBody11 : T.skipBioBody };
     const dialog = openModal(`<div class="flow-modal" role="dialog" aria-modal="true" aria-labelledby="skip-title" aria-describedby="skip-body">
       <button type="button" class="flow-modal-close" data-close aria-label="${T.close}">${icon("x", 17)}</button>
       <div class="flow-icon warning">${icon("shieldAlert", 23)}</div>
       <h2 id="skip-title" tabindex="-1">${copy.title}</h2>
       <p id="skip-body">${copy.body}</p>
+      ${V11 ? "" : `<p>${T.skipReminder}</p>`}
       <div class="flow-modal-actions">
         <button type="button" class="flow-primary" data-close>${T.setUpNow}</button>
         <button type="button" class="flow-link" data-confirm>${T.remindLater}</button>
@@ -999,7 +1006,7 @@
         return go("lock");
       case "opts-continue":
         if (!saveRecoveryEmail()) return;
-        if (state.returnToReview) return advance("biometric");
+        if (state.returnToReview || !V11) return advance("biometric");
         state.testInFlow = true;
         return go("locktest");
       case "test-continue":

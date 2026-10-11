@@ -6,7 +6,7 @@
   const T = window.T;
   const enabled = new URLSearchParams(location.search).get("study") === "1";
   // Bump this after each round of improvements so retest results can be told apart.
-  const BUILD = "1.1";
+  const BUILD = new URLSearchParams(location.search).get("v") === "1.1" ? "1.1" : "1.0";
 
   const data = {
     flow: "",
