@@ -1,12 +1,12 @@
 // Baseline flow: a reconstruction of the conventional default setup pattern described in the
-// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", automatic
-// (unshown) encryption, and no summary at the end. Used only for comparison testing.
+// proposal — bare options, fixed 4-digit PIN, 4-character password, silent "Skip", an on-by-default
+// unexplained encryption toggle, and no summary at the end. Used only for comparison testing.
 (function () {
   const $ = (id) => document.getElementById(id);
   const T = window.T;
   const Study = window.Study;
-  // No encryption screen, matching current phones: Android 10+ (file-based encryption) and
-  // iPhone (Data Protection) encrypt storage automatically. Round 1 used an off-by-default toggle.
+  // Encryption starts on, matching current phones: Android 10+ (file-based encryption) and
+  // iPhone (Data Protection) encrypt storage by default. Round 1 used an off-by-default toggle.
   const content = $("flow-content");
 
   const S = {
@@ -167,13 +167,13 @@
         state.lock = "pattern";
         return go("biometric");
       }
-      case "skip-bio": Study.event("skip", "biometric"); return go("done");
+      case "skip-bio": Study.event("skip", "biometric"); return go("encryption");
       case "add-fp":
         state.fpScanning = true;
         render();
         setTimeout(() => { state.fpScanning = false; state.bio = true; render(); }, 1600);
         return;
-      case "to-enc": return go("done");
+      case "to-enc": return go("encryption");
       case "to-done":
         state.enc = $("base-enc").checked;
         if (!state.enc) Study.event("skip", "encryption");
