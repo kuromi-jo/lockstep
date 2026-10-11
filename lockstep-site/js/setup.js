@@ -348,7 +348,8 @@
       </label>
       <p class="flow-hint left">${icon("shieldCheck", 12)} ${T.recSetupNote}</p>
       <button type="button" class="flow-primary" data-action="opts-continue">${T.continue} ${icon("arrowRight", 17)}</button>
-      ${!V11 && state.verifier ? `<button type="button" class="flow-secondary" data-action="to-test">${icon("lock", 16)} ${T.testLock}</button>` : ""}
+      ${!V11 && state.verifier ? `<button type="button" class="flow-secondary" data-action="to-test" id="opts-test" ${state.recoveryEmail ? "" : "disabled"}>${icon("lock", 16)} ${T.testLock}</button>
+      <p class="flow-hint" id="opts-test-hint" ${state.recoveryEmail ? "hidden" : ""}>${T.testNeedsEmail}</p>` : ""}
     </div>`;
   }
 
@@ -382,7 +383,7 @@
       </label>`;
     }
     // Build 1.1 guides the test: unlock, try a wrong one, then unlock again to move on.
-    const guided = V11 && state.testInFlow;
+    const guided = state.testInFlow;
     const tl = type === "pin" ? lockLabel(type) : lockLabel(type).toLowerCase();
     const status = guided && !locked && t.status !== "wrong" ? "" : locked
       ? `<p class="flow-error" role="alert"><span id="lock-count">${T.testLocked(secs)}</span></p><button type="button" class="flow-link" data-action="skip-wait">${T.skipWait}</button>`
@@ -428,7 +429,7 @@
       t.okSeen = true;
       t.attempts = 0;
       Study.event("locktest", "ok");
-      if (V11 && state.testInFlow && t.wrongSeen) {
+      if (state.testInFlow && t.wrongSeen) {
         t.done = true;
         render();
         setTimeout(() => { if (state.screen === "locktest" && state.testInFlow) { state.testInFlow = false; advance("biometric"); } }, 1400);
@@ -1031,8 +1032,10 @@
         state.testInFlow = false;
         return advance("biometric");
       case "to-test":
-        // Start a fresh test from review/settings (keep any running lockout).
-        state.testInFlow = false;
+        // From lock options (build 1.0): needs the recovery email first, then runs the guided test.
+        // From review/settings: a plain fresh test (keep any running lockout).
+        if (state.screen === "lockopts" && !saveRecoveryEmail()) return;
+        state.testInFlow = state.screen === "lockopts";
         state.test = { attempts: 0, lockedUntil: state.test.lockedUntil, status: "", pattern: [] };
         return go("locktest");
       case "test-back": return back();
@@ -1085,6 +1088,9 @@
       // Save as soon as it's valid, so "Test your lock" works without pressing Continue first.
       const v = t.value.trim();
       if (!v || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) state.recoveryEmail = v;
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+      $("opts-test")?.toggleAttribute("disabled", !ok);
+      $("opts-test-hint")?.toggleAttribute("hidden", ok);
     } else if (t.id === "custom-len") {
       t.value = t.value.replace(/\D/g, "").slice(0, 2);
       state.customLength = t.value;
