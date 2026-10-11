@@ -843,23 +843,13 @@
     if (state.bio === "scanning") state.bio = "unset";
   }
 
-  async function realSensor() {
-    try {
-      await Sec.verifyWithPlatform();
-      state.bio = "set";
-      state.security.biometric = { status: "set", method: "real" };
-      state.bioNote = T.realSensorDone;
-      Study.event("webauthn", "ok");
-      render(true);
-    } catch {
-      // Some browsers block or cancel the passkey prompt. Finish enrollment anyway so the
-      // flow matches what the user chose; the study log still records the failure.
-      Study.event("webauthn", "failed");
-      state.bio = "set";
-      state.security.biometric = { status: "set", method: "device" };
-      state.bioNote = T.deviceBioDone;
-      render(true);
-    }
+  // Simulated "device sensor" enrollment. The real WebAuthn prompt was removed because browsers
+  // asked for the computer's PIN, which confused participants; nothing is scanned or sent.
+  function realSensor() {
+    Study.event("devicebio", "simulated");
+    state.bioNote = T.deviceBioChecking;
+    startScan();
+    state.bioNote = T.deviceBioDone;
   }
 
   // The recovery email is required whenever a lock is set, so a forgotten lock can be reset safely.
@@ -1037,7 +1027,11 @@
         if (d.action === "test-skip" && state.test.status !== "ok") Study.event("locktest", "skipped");
         state.testInFlow = false;
         return advance("biometric");
-      case "to-test": state.testInFlow = false; return go("locktest");
+      case "to-test":
+        // Start a fresh test from review/settings (keep any running lockout).
+        state.testInFlow = false;
+        state.test = { attempts: 0, lockedUntil: state.test.lockedUntil, status: "", pattern: [] };
+        return go("locktest");
       case "test-back": return back();
       case "test-unlock": return testUnlock();
       case "test-clear": state.test.pattern = []; state.test.gestureDone = false; return drawTestPattern();
