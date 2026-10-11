@@ -5,6 +5,10 @@
   const $ = (id) => document.getElementById(id);
   const T = window.T;
   const Study = window.Study;
+  // ?v=1.1 matches current phones: no encryption screen, because Android 10+ (file-based
+  // encryption) and iPhone (Data Protection) encrypt storage automatically. Build 1.0 keeps
+  // the toggle that Round 1 participants used.
+  const V11 = new URLSearchParams(location.search).get("v") === "1.1";
   const content = $("flow-content");
 
   const S = {
@@ -38,7 +42,7 @@
     },
   }[T.lang];
 
-  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: false, fpScanning: false };
+  const state = { screen: "lock", lockType: null, first: "", confirming: false, error: "", pattern: [], lock: "none", bio: false, enc: V11, fpScanning: false };
 
   function go(screen) {
     state.screen = screen;
@@ -165,13 +169,13 @@
         state.lock = "pattern";
         return go("biometric");
       }
-      case "skip-bio": Study.event("skip", "biometric"); return go("encryption");
+      case "skip-bio": Study.event("skip", "biometric"); return go(V11 ? "done" : "encryption");
       case "add-fp":
         state.fpScanning = true;
         render();
         setTimeout(() => { state.fpScanning = false; state.bio = true; render(); }, 1600);
         return;
-      case "to-enc": return go("encryption");
+      case "to-enc": return go(V11 ? "done" : "encryption");
       case "to-done":
         state.enc = $("base-enc").checked;
         if (!state.enc) Study.event("skip", "encryption");
