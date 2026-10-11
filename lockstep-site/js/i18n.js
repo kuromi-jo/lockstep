@@ -176,6 +176,7 @@
     recDoneTitle: "It’s you. Set a new lock.",
     recDoneText: "Your old lock has been removed. On a real phone, a reset like this can also erase data — that’s why choosing a lock you’ll remember matters.",
     recNewLock: "Set a new lock",
+    recAfterNote: "Recovered. Choose your new lock, then you’ll go straight to your review to finish setup.",
     recErr: {
       invalid_email: "Enter a valid email address.",
       rate_limited: "Too many requests. Please wait a while and try again.",
@@ -412,6 +413,7 @@
     recDoneTitle: "Ikaw nga. Mag-set ng bagong lock.",
     recDoneText: "Inalis na ang lumang lock mo. Sa totoong telepono, maaari ring mabura ang data sa ganitong reset — kaya mahalagang pumili ng lock na maaalala mo.",
     recNewLock: "Mag-set ng bagong lock",
+    recAfterNote: "Nabawi na. Pumili ng bagong lock, at diretso ka na sa review para tapusin ang setup.",
     recErr: {
       invalid_email: "Maglagay ng tamang email address.",
       rate_limited: "Sobrang daming request. Maghintay muna bago subukan muli.",

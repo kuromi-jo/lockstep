@@ -215,6 +215,7 @@
       <p class="flow-eyebrow">${T.lockEyebrow}</p>
       <h2 tabindex="-1">${T.lockTitle}</h2>
       <p class="flow-text">${T.lockText}</p>
+      ${state.recovered && current.status !== "set" ? `<p class="flow-notice" role="status">${T.recAfterNote}</p>` : ""}
       ${detailsToggle(T.lockDetail)}
       <div class="flow-options">
         ${option("pin", T.pinNote)}
@@ -967,7 +968,10 @@
         state.recovery = null;
         state.test = { attempts: 0, lockedUntil: 0, status: "", pattern: [] };
         clearInterval(testTimer);
-        state.returnToReview = state.history.includes("review");
+        // After recovery, set the new lock then go straight to the review, so the user
+        // can finish (and copy results) instead of redoing the whole setup.
+        state.returnToReview = true;
+        state.recovered = true;
         return go("lock");
       case "opts-continue": {
         const email = ($("rec-setup")?.value || "").trim();
