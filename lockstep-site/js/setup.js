@@ -820,10 +820,31 @@
       Study.event("webauthn", "ok");
       render(true);
     } catch {
+      // Some browsers block or cancel the passkey prompt. Finish enrollment anyway so the
+      // flow matches what the user chose; the study log still records the failure.
       Study.event("webauthn", "failed");
-      state.bioNote = T.realSensorFailed;
-      startScan();
+      state.bio = "set";
+      state.security.biometric = { status: "set", method: "device" };
+      state.bioNote = T.deviceBioDone;
+      render(true);
     }
+  }
+
+  // The recovery email is required whenever a lock is set, so a forgotten lock can be reset safely.
+  function saveRecoveryEmail() {
+    const field = $("rec-setup");
+    if (!field) return true;
+    const email = field.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      setError(email ? T.recErr.invalid_email : T.recSetupRequired);
+      const f = $("rec-setup");
+      if (f) { f.value = email; f.focus(); }
+      return false;
+    }
+    if (email !== state.recoveryEmail) Study.event("lockopt", "recovery-email");
+    state.recoveryEmail = email;
+    state.entry.error = "";
+    return true;
   }
 
   /* ---------- Modals ---------- */
@@ -973,15 +994,8 @@
         state.returnToReview = true;
         state.recovered = true;
         return go("lock");
-      case "opts-continue": {
-        const email = ($("rec-setup")?.value || "").trim();
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setError(T.recErr.invalid_email); const f = $("rec-setup"); if (f) { f.value = email; f.focus(); } return; }
-        if (email !== state.recoveryEmail) Study.event("lockopt", email ? "recovery-email" : "no-recovery-email");
-        state.recoveryEmail = email;
-        state.entry.error = "";
-        return advance("biometric");
-      }
-      case "to-test": return go("locktest");
+      case "opts-continue": return saveRecoveryEmail() && advance("biometric");
+      case "to-test": return state.screen === "lockopts" && !saveRecoveryEmail() ? undefined : go("locktest");
       case "test-back": return back();
       case "test-unlock": return testUnlock();
       case "skip-wait":
