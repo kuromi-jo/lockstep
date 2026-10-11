@@ -389,12 +389,12 @@
       <p class="flow-text">${T.testText(lockLabel(type))}</p>
       ${input}
       ${status}
-      ${state.testInFlow && t.status === "ok"
-        ? `<button type="button" class="flow-primary" data-action="test-continue">${T.continue} ${icon("arrowRight", 17)}</button>`
-        : `<button type="button" class="flow-primary" data-action="test-unlock" ${locked ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>`}
+      ${V11 ? `<p class="flow-notice" role="status">${icon("info", 13)} ${!t.okSeen ? T.testStep1(lockLabel(type)) : t.attempts === 0 ? T.testStep2(lockLabel(type)) : T.testStepDone}</p>` : ""}
+      <button type="button" class="${V11 && t.okSeen ? "flow-secondary" : "flow-primary"}" data-action="test-unlock" ${locked ? "disabled" : ""}>${T.unlock} ${icon("lock", 16)}</button>
+      ${state.testInFlow && t.okSeen ? `<button type="button" class="flow-primary" data-action="test-continue">${T.continue} ${icon("arrowRight", 17)}</button>` : ""}
       ${t.attempts >= 5 && t.status !== "ok" ? `<button type="button" class="flow-secondary" data-action="rec-start">${icon("mail", 16)} ${T.recLink}</button>` : ""}
       <div class="lesson"><strong>${T.testWhy}</strong><p>${T.testMath(g.what, time)}</p></div>
-      ${state.testInFlow && t.status !== "ok" ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
+      ${state.testInFlow && !t.okSeen ? `<button type="button" class="flow-link" data-action="test-skip">${T.skipTest}</button>` : ""}
       <button type="button" class="flow-link" data-action="test-back">${state.history[state.history.length - 1] === "lockopts" ? T.backToOptions : T.back}</button>
     </div>`;
   }
@@ -417,6 +417,7 @@
     const ok = await Sec.checkVerifier(guess, state.verifier);
     if (ok) {
       t.status = "ok";
+      t.okSeen = true;
       t.attempts = 0;
       Study.event("locktest", "ok");
     } else {
@@ -593,7 +594,7 @@
       return `<div class="flow-review-row ${full ? "active" : c[id][0] ? "half" : ""}">
         <span class="flow-review-icon">${icon(ic, 17)}</span>
         <span><strong>${label}</strong><small>${statusText[id]()}</small>${id === "lock" && c.lock[0] ? `<small>${optsSummary()}</small>` : ""}${hint ? `<small class="hint">${hint}</small>` : ""}</span>
-        ${full ? `${icon("check", 16)}<span class="sr-only">${T.protectedLabel}</span>` : `<button type="button" data-fix="${id}" aria-label="${T.fixNow}: ${label}">${T.fixNow}</button>`}
+        ${full ? `${icon("check", 16)}<span class="sr-only">${T.protectedLabel}</span>` : `<button type="button" data-fix="${id}" aria-label="${T.fixNow}: ${label}">${V11 && c[id][0] ? T.makeStronger : T.fixNow}</button>`}
       </div>`;
     };
     const missing = 6 - r.total;
